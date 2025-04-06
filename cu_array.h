@@ -1,3 +1,52 @@
+/// @file cu_array.h
+/// @brief Simple, header-only dynamic array implementation for C.
+///
+/// This library provides a generic, resizable array structure (`cu_array_t`) that stores
+/// arbitrary fixed-size items in a contiguous memory block.
+///
+/// Designed to be minimal and portable, this library avoids platform-specific dependencies
+/// and can be easily included in any project.
+///
+/// To include function implementations, define:
+///     #define CU_ARRAY_IMPL
+/// before including this header in **one** `.c` or `.cpp` file.
+///
+/// ### Main API
+/// - `cu_array_init()`
+/// - `cu_array_deinit()`
+/// - `cu_array_append()`
+/// - `cu_array_insert()`
+/// - `cu_array_extend()`
+/// - `cu_array_remove_at()`
+/// - `cu_array_clear()`
+/// - `cu_array_qsort()`
+/// - `cu_array_at()`
+///
+/// @see `tests/` for examples.
+/// 
+/// @def CU_ARRAY_IMPL
+/// @brief Enables function definitions inside the header. Must be defined in exactly one .c or .cpp file.
+/// @def CU_API
+/// @brief Override linkage keyword (default: extern or empty if CU_ARRAY_IMPL is defined).
+/// @def CU_UNIT
+/// @brief Type used for raw array storage (default: unsigned char). Override it if you want to store word sized data for example. (Not really tested).
+/// @def CU_ARRAY_DEFAULT_SIZE
+/// @brief Initial array capacity (default: 32).
+/// @def CU_ARRAY_MAX_ITEM_SIZE
+/// @brief Maximum size used for internal static swap buffer during qsort (default: 128).
+/// @def CU_GROWTH_RATE_SPEED
+/// @brief Use fast power-of-two resizing. Might waste memory.
+/// @def CU_GROWTH_RATE_SPACE
+/// @brief Use conservative 2x growth. Mutually exclusive with CU_GROWTH_RATE_SPEED. Default behaviour.
+/// @def CU_DEBUG
+/// @brief Enables debug features (like _cu_array_debug_print() and __CU_DEBUG_HERE).
+/// @def CU_NO_LIBC
+/// @brief Disable all standard library includes. You should define cu_malloc, cu_free, cu_realloc, cu_memmove, cu_memcpy.
+/// @def CU_NO_STDLIB_H
+/// @brief Disable inclusion of <stdlib.h>. You should define cu_malloc, cu_free, cu_realloc.
+/// @def CU_NO_STRINGS_H
+/// @brief Disable inclusion of <string.h>. You should define cu_memmove, cu_memcpy.
+
 #ifndef CU_ARRAY_H
 #define CU_ARRAY_H
 
@@ -25,6 +74,13 @@
     }
 #endif // defined(CU_DEBUG)
 
+#if (defined(CU_GROWTH_RATE_SPEED)) && (defined(CU_GROWTH_RATE_SPACE))
+#error "Only CU_GROWTH_RATE_SPEED or CU_GROWTH_RATE_SPACE can be defined, not both"
+#endif // (defined(CU_GROWTH_RATE_SPEED)) && (defined(CU_GROWTH_RATE_SPACE))
+#if (!defined(CU_GROWTH_RATE_SPEED)) && (!defined(CU_GROWTH_RATE_SPACE))
+#define CU_GROWTH_RATE_SPACE
+#endif // (!defined(CU_GROWTH_RATE_SPEED)) && (!defined(CU_GROWTH_RATE_SPACE))
+
 #if ((defined(CU_GROWTH_RATE_SPEED)) && (!defined(SIZE_MAX))) || (defined(CU_NO_STDLIB_H))
 #include <stddef.h>
 #endif // (defined(CU_GROWTH_RATE_SPEED)) && (!defined(SIZE_MAX))
@@ -50,7 +106,7 @@ extern "C"
 
     /// @brief Initializes a dynamic array with capacity `CU_ARRAY_DEFAULT_SIZE`.
     /// @param arr Pointer to the array.
-    /// @param item_size Size of each item in bytes.
+    /// @param item_size Size of each item in `CU_UNIT`.
     /// @return `0` on success, `1` on error.
     CU_API int cu_array_init(cu_array_t *arr, size_t item_size);
 
@@ -158,10 +214,6 @@ extern "C"
 #ifndef CU_ARRAY_MAX_ITEM_SIZE
 #define CU_ARRAY_MAX_ITEM_SIZE (128u)
 #endif // CU_ARRAY_MAX_ITEM_SIZE
-
-#if (!defined(CU_GROWTH_RATE_SPEED)) && (!defined(CU_GROWTH_RATE_SPACE))
-#define CU_GROWTH_RATE_SPACE
-#endif // (!defined(CU_GROWTH_RATE_SPEED)) && (!defined(CU_GROWTH_RATE_SPACE))
 
 // Definitions
 
