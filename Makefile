@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c99 -Wall -Wextra -Werror
 OUTDIR = build
-OUTFILE = $(OUTDIR)/cu_array
+OUTFILE = $(OUTDIR)/test_cu_array
 SRC = tests/test_cu_array.c
 
 all: $(OUTFILE)

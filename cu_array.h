@@ -29,7 +29,7 @@
 /// @def CU_API
 /// @brief Override linkage keyword (default: extern or empty if CU_ARRAY_IMPL is defined).
 /// @def CU_UNIT
-/// @brief Type used for raw array storage (default: unsigned char). Override it if you want to store word sized data for example. (Not really tested).
+/// @brief Type used for raw array storage (default: unsigned char). Override it if you want to store word sized data for example. (Doesn't work at the moment, still needs some work with pointer arithmetics).
 /// @def CU_ARRAY_DEFAULT_SIZE
 /// @brief Initial array capacity (default: 32).
 /// @def CU_ARRAY_MAX_ITEM_SIZE
